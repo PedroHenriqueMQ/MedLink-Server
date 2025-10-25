@@ -1,5 +1,8 @@
 package edu.catolica.service;
 
+import edu.catolica.exception.CredenciaisInvalidasException;
+import edu.catolica.infra.GerenciadorSessao;
+import edu.catolica.model.TipoUsuario;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class PacienteService {
+    private final GerenciadorSessao gerenciadorSessao = GerenciadorSessao.getInstancia();
     private final ClinicaService clinicaService;
     private final UsuarioRepository usuarioRepository;
 
@@ -29,10 +33,20 @@ public class PacienteService {
             usuarioPacienteDTO.cpf(),
             usuarioPacienteDTO.dataNascimento(),
             null,
-            edu.catolica.model.TipoUsuario.PACIENTE
+            TipoUsuario.PACIENTE
         );
 
         usuarioRepository.save(usuarioModel);
+    }
+
+    public void login(String email, String senha) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(CredenciaisInvalidasException::new);
+
+        if (!usuario.getSenha().equals(senha))
+            throw new CredenciaisInvalidasException();
+
+        gerenciadorSessao.login(email);
     }
 
     private void verificarEmailDuplicado(String email, Clinica clinica) {

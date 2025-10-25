@@ -1,5 +1,6 @@
 package edu.catolica.controller;
 
+import edu.catolica.dto.UsuarioLoginDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,5 +25,10 @@ public final class PacienteController {
     public void cadastrarPaciente(@RequestBody @Valid UsuarioPacienteDTO usuarioPacienteDTO) {
         pacienteService.cadastrarPaciente(usuarioPacienteDTO);
     }
-    
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/login")
+    public void login(@RequestBody @Valid UsuarioLoginDTO usuarioLoginDTO) {
+        pacienteService.login(usuarioLoginDTO.email(), usuarioLoginDTO.senha());
+    }
 }
