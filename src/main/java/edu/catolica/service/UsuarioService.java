@@ -38,7 +38,7 @@ public class UsuarioService {
         return usuario.get();
     }
 
-    protected Usuario validarRequisicaoUsuario(String email, TipoUsuario tipoUsuario) {
+    protected Usuario validarRequisicao(String email, TipoUsuario tipoUsuario) {
         if (!gerenciadorSessao.validarSessao(email))
             throw new SessaoExpiradaException();
 
@@ -49,5 +49,9 @@ public class UsuarioService {
             throw new AcessoNegadoException();
 
         return usuario;
+    }
+
+    protected void validarAutoRequisicao(String email, String token) {
+        if (!email.equals(token)) throw new AcessoNegadoException();
     }
 }

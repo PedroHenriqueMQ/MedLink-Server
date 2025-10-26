@@ -19,18 +19,11 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/pacientes")
 @RequiredArgsConstructor
 public final class PacienteController {
-    private final UsuarioService usuarioService;
     private final PacienteService pacienteService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public void cadastrarPaciente(@RequestBody @Valid UsuarioPacienteDTO usuarioPacienteDTO) {
         pacienteService.cadastrarPaciente(usuarioPacienteDTO);
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/login")
-    public void login(@RequestBody @Valid UsuarioLoginDTO usuarioLoginDTO) {
-        usuarioService.login(usuarioLoginDTO.email(), usuarioLoginDTO.senha());
     }
 }

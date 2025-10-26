@@ -3,11 +3,14 @@ package edu.catolica.service;
 import edu.catolica.dto.UsuarioProfissionalDTO;
 import edu.catolica.model.AreaAtuacao;
 import edu.catolica.model.TipoUsuario;
+import edu.catolica.model.TurnoAtendimento;
 import edu.catolica.model.Usuario;
 import edu.catolica.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Transactional
 @RequiredArgsConstructor
@@ -17,7 +20,7 @@ public class AdministradorService {
     private final UsuarioRepository usuarioRepository;
 
     public void cadastrarProfissional(UsuarioProfissionalDTO usuarioProfissionalDTO, String token) {
-        var administrador = usuarioService.validarRequisicaoUsuario(token, TipoUsuario.ADMINISTRADOR);
+        var administrador = usuarioService.validarRequisicao(token, TipoUsuario.ADMINISTRADOR);
         var clinica = administrador.getClinica();
         usuarioService.verificarEmailDuplicado(usuarioProfissionalDTO.email(), clinica);
 
@@ -32,14 +35,15 @@ public class AdministradorService {
                         usuarioProfissionalDTO.tituloAreaAtuacao(),
                         usuarioProfissionalDTO.descricaoAreaAtuacao()
                 ),
-                TipoUsuario.PROFISSIONAL
+                TipoUsuario.PROFISSIONAL,
+                List.of(TurnoAtendimento.MATUTINO, TurnoAtendimento.VESPERTINO)
         );
 
         usuarioRepository.save(usuarioModel);
     }
 
     public void atualizarProfissional(UsuarioProfissionalDTO usuarioProfissionalDTO, String token) {
-        var administrador = usuarioService.validarRequisicaoUsuario(token, TipoUsuario.ADMINISTRADOR);
+        var administrador = usuarioService.validarRequisicao(token, TipoUsuario.ADMINISTRADOR);
         var clinica = administrador.getClinica();
         var usuario = usuarioService.verificarEmailDuplicado(usuarioProfissionalDTO.email(), clinica);
 
@@ -55,7 +59,7 @@ public class AdministradorService {
     }
 
     public void atualizarEstadoProfissional(String email, String token, boolean estadoInativo) {
-        var administrador = usuarioService.validarRequisicaoUsuario(token, TipoUsuario.ADMINISTRADOR);
+        var administrador = usuarioService.validarRequisicao(token, TipoUsuario.ADMINISTRADOR);
         var clinica = administrador.getClinica();
         var usuario = usuarioService.verificarEmailDuplicado(email, clinica);
 

@@ -2,7 +2,6 @@ package edu.catolica.controller;
 
 import edu.catolica.dto.UsuarioProfissionalDTO;
 import edu.catolica.service.AdministradorService;
-import edu.catolica.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/administradores")
 @RequiredArgsConstructor
 public class AdministradorController {
-    private final UsuarioService usuarioService;
     private final AdministradorService administradorService;
 
     @ResponseStatus(HttpStatus.CREATED)

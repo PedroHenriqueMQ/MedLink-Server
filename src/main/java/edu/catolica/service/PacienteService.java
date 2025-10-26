@@ -29,7 +29,8 @@ public class PacienteService {
             usuarioPacienteDTO.cpf(),
             usuarioPacienteDTO.dataNascimento(),
             null,
-            TipoUsuario.PACIENTE
+            TipoUsuario.PACIENTE,
+            null
         );
 
         usuarioRepository.save(usuarioModel);

@@ -30,9 +30,11 @@ public final class Usuario {
     @JoinColumn(name = "area_atuacao_id")
     private List<AreaAtuacao> areaAtuacao = new ArrayList<>();
     private TipoUsuario tipoUsuario;
+    private List<TurnoAtendimento> turnosAtendimento = new ArrayList<>();
     private boolean inativo = false;
 
-    public Usuario(Clinica clinica, String nome, String email, String senha, String cpf, LocalDate dataNascimento, AreaAtuacao areaAtuacao, TipoUsuario tipoUsuario) {
+    public Usuario(Clinica clinica, String nome, String email, String senha, String cpf, LocalDate dataNascimento,
+                   AreaAtuacao areaAtuacao, TipoUsuario tipoUsuario, List<TurnoAtendimento> turnosAtendimento) {
         this.clinica = clinica;
         this.nome = nome;
         this.email = email;
@@ -41,5 +43,6 @@ public final class Usuario {
         this.dataNascimento = dataNascimento;
         this.areaAtuacao.add(areaAtuacao);
         this.tipoUsuario = tipoUsuario;
+        this.turnosAtendimento = turnosAtendimento;
     }
 }
