@@ -1,6 +1,7 @@
 package edu.catolica.controller;
 
 import edu.catolica.dto.UsuarioLoginDTO;
+import edu.catolica.service.UsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/pacientes")
 @RequiredArgsConstructor
 public final class PacienteController {
+    private final UsuarioService usuarioService;
     private final PacienteService pacienteService;
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -29,6 +31,6 @@ public final class PacienteController {
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     public void login(@RequestBody @Valid UsuarioLoginDTO usuarioLoginDTO) {
-        pacienteService.login(usuarioLoginDTO.email(), usuarioLoginDTO.senha());
+        usuarioService.login(usuarioLoginDTO.email(), usuarioLoginDTO.senha());
     }
 }
