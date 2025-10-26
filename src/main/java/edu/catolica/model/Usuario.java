@@ -1,16 +1,10 @@
 package edu.catolica.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,19 +26,20 @@ public final class Usuario {
     private String senha;
     private String cpf;
     private LocalDate dataNascimento;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "area_atuacao_id")
-    private List<AreaAtuacao> areaAtuacao;
+    private List<AreaAtuacao> areaAtuacao = new ArrayList<>();
     private TipoUsuario tipoUsuario;
+    private boolean inativo = false;
 
-    public Usuario(Clinica clinica, String nome, String email, String senha, String cpf, LocalDate dataNascimento, List<AreaAtuacao> areaAtuacao, TipoUsuario tipoUsuario) {
+    public Usuario(Clinica clinica, String nome, String email, String senha, String cpf, LocalDate dataNascimento, AreaAtuacao areaAtuacao, TipoUsuario tipoUsuario) {
         this.clinica = clinica;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.cpf = cpf;
         this.dataNascimento = dataNascimento;
-        this.areaAtuacao = areaAtuacao;
+        this.areaAtuacao.add(areaAtuacao);
         this.tipoUsuario = tipoUsuario;
     }
 }

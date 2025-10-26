@@ -7,6 +7,6 @@ import edu.catolica.model.Usuario;
 import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    boolean existsByClinicaId(Long clinicaId);
+    Optional<Usuario> findByClinicaIdAndEmail(Long clinicaId, String email);
     Optional<Usuario> findByEmail(String email);
 }

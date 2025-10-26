@@ -27,8 +27,11 @@ public record UsuarioProfissionalDTO(
         String cpf,
         @NotNull
         LocalDate dataNascimento,
+        @Size(max = 20)
+        @NotBlank
+        String tituloAreaAtuacao,
         @Size(max = 80)
         @NotBlank
-        String areaAtuacao
+        String descricaoAreaAtuacao
 ) {
 }
