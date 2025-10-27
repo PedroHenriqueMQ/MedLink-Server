@@ -1,7 +1,5 @@
 package edu.catolica.controller;
 
-import edu.catolica.dto.UsuarioLoginDTO;
-import edu.catolica.service.UsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,7 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.catolica.dto.UsuarioPacienteDTO;
-import edu.catolica.service.PacienteService;
+import edu.catolica.service.usuario.PacienteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

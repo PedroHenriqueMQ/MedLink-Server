@@ -1,7 +1,7 @@
 package edu.catolica.controller;
 
 import edu.catolica.dto.UsuarioProfissionalDTO;
-import edu.catolica.service.AdministradorService;
+import edu.catolica.service.usuario.AdministradorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

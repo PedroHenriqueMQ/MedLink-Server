@@ -1,7 +1,7 @@
 package edu.catolica.controller;
 
-import edu.catolica.model.TurnoAtendimento;
-import edu.catolica.service.ProfissionalService;
+import edu.catolica.model.enums.TurnoAtendimento;
+import edu.catolica.service.usuario.ProfissionalService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,5 +22,4 @@ public class ProfissionalController {
                                          @RequestHeader("token") String token) {
         profissionalService.atualizarTurnosAtendimento(email, token, turnosAtendimento);
     }
-
 }

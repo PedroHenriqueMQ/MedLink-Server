@@ -1,4 +1,4 @@
-package edu.catolica.service;
+package edu.catolica.service.clinica;
 
 import edu.catolica.exception.ClinicaInexistenteException;
 import org.springframework.stereotype.Service;

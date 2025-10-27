@@ -1,12 +1,9 @@
-package edu.catolica.service;
+package edu.catolica.service.usuario;
 
-import edu.catolica.exception.AcessoNegadoException;
-import edu.catolica.exception.CredenciaisInvalidasException;
-import edu.catolica.exception.EmailDuplicadoException;
-import edu.catolica.exception.SessaoExpiradaException;
+import edu.catolica.exception.*;
 import edu.catolica.infra.GerenciadorSessao;
 import edu.catolica.model.Clinica;
-import edu.catolica.model.TipoUsuario;
+import edu.catolica.model.enums.TipoUsuario;
 import edu.catolica.model.Usuario;
 import edu.catolica.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,17 +27,15 @@ public class UsuarioService {
         gerenciadorSessao.login(email);
     }
 
-    protected Usuario verificarEmailDuplicado(String email, Clinica clinica) {
+    public void verificarEmailDuplicado(String email, Clinica clinica) {
         var usuario = usuarioRepository.findByClinicaIdAndEmail(clinica.getId(), email);
 
-        if (usuario.isEmpty()) throw new EmailDuplicadoException(email, clinica.getRazaoSocial());
-
-        return usuario.get();
+        if (usuario.isPresent()) throw new EmailDuplicadoException(email, clinica.getRazaoSocial());
     }
 
-    protected Usuario validarRequisicao(String email, TipoUsuario tipoUsuario) {
+    public Usuario verificarRequisicao(String email, TipoUsuario tipoUsuario) {
         if (!gerenciadorSessao.validarSessao(email))
-            throw new SessaoExpiradaException();
+            throw new AcessoNegadoException();
 
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(CredenciaisInvalidasException::new);
@@ -51,7 +46,24 @@ public class UsuarioService {
         return usuario;
     }
 
-    protected void validarAutoRequisicao(String email, String token) {
+    public void verificarAutoRequisicao(String email, String token) {
         if (!email.equals(token)) throw new AcessoNegadoException();
+    }
+
+    public Clinica verificarClinicaCoincidente(String emailRemetente, String emailDestinatario) {
+        Usuario paciente = usuarioRepository.findByEmail(emailRemetente)
+                .orElseThrow(() -> new UsuarioInexistenteException(emailRemetente));
+
+        Usuario profissional = usuarioRepository.findByEmail(emailDestinatario)
+                .orElseThrow(() -> new UsuarioInexistenteException(emailDestinatario));
+
+        if (!paciente.getClinica().getId().equals(profissional.getClinica().getId()))
+            throw new UsuariosClinicasDistintasException();
+
+        return paciente.getClinica();
+    }
+
+    public Usuario verificarUsuarioPeloEmail(String email) {
+        return usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioInexistenteException(email));
     }
 }
