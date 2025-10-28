@@ -1,0 +1,40 @@
+package edu.catolica.service.usuario;
+
+import edu.catolica.model.enums.TipoUsuario;
+import edu.catolica.service.clinica.ClinicaService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import edu.catolica.dto.UsuarioPacienteDTO;
+import edu.catolica.model.Usuario;
+import edu.catolica.repository.UsuarioRepository;
+import lombok.RequiredArgsConstructor;
+
+@Transactional
+@RequiredArgsConstructor
+@Service
+public class PacienteService {
+    private final UsuarioService usuarioService;
+    private final ClinicaService clinicaService;
+    private final UsuarioRepository usuarioRepository;
+
+    public String cadastrarPaciente(UsuarioPacienteDTO usuarioPacienteDTO) {
+        var clinica = clinicaService.consultarClinicaExistente(usuarioPacienteDTO.clinica());
+        usuarioService.verificarEmailDuplicado(usuarioPacienteDTO.email(), clinica);
+
+        Usuario usuarioModel = new Usuario(
+            clinica,
+            usuarioPacienteDTO.nome(),
+            usuarioPacienteDTO.email(),
+            usuarioPacienteDTO.senha(),
+            usuarioPacienteDTO.cpf(),
+            usuarioPacienteDTO.dataNascimento(),
+            null,
+            TipoUsuario.PACIENTE,
+            null
+        );
+
+        var paciente = usuarioRepository.save(usuarioModel);
+        return paciente.getTipoUsuario().toString();
+    }
+}
