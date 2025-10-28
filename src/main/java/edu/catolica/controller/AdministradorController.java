@@ -10,25 +10,26 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/administradores")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class AdministradorController {
     private final AdministradorService administradorService;
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/profissionais")
+    @PostMapping("/profissional")
     public void cadastrarProfissional(@RequestBody @Valid UsuarioProfissionalDTO usuarioProfissionalDTO,
                                       @RequestHeader("token") String token) {
         administradorService.cadastrarProfissional(usuarioProfissionalDTO, token);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/profissionais")
+    @PutMapping("/profissional")
     public void atualizarProfissional(@RequestBody @Valid UsuarioProfissionalDTO usuarioProfissionalDTO,
                                       @RequestHeader("token") String token) {
         administradorService.atualizarProfissional(usuarioProfissionalDTO, token);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PatchMapping("/profissionais/{email}")
+    @PatchMapping("/profissional/{email}")
     public void atualizarEstadoAtividadeProfissional(@PathVariable("email") String email,
                                                      @RequestParam boolean estadoInativo,
                                                      @RequestHeader("token") String token) {

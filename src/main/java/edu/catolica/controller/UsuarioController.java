@@ -15,7 +15,8 @@ public class UsuarioController {
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
-    public void login(@RequestBody @Valid UsuarioLoginDTO usuarioLoginDTO) {
-        usuarioService.login(usuarioLoginDTO.email(), usuarioLoginDTO.senha());
+    @CrossOrigin(origins = "*")
+    public String login(@RequestBody @Valid UsuarioLoginDTO usuarioLoginDTO) {
+        return usuarioService.login(usuarioLoginDTO.email(), usuarioLoginDTO.senha());
     }
 }
