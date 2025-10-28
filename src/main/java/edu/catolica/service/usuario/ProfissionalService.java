@@ -88,4 +88,28 @@ public class ProfissionalService {
                         )
         ).toList();
     }
+
+    public List<UsuarioProfissionalDTO> obterProfissionaisPelaClinicaDoUsuario(String token) {
+        var clinicaId = usuarioService.verificarUsuarioPeloEmail(token).getClinica().getId();
+        var usuarios = usuarioRepository.findAllByClinicaId(clinicaId);
+
+        return usuarios.stream().filter(
+                (usuario) -> usuario.getTipoUsuario() == TipoUsuario.PROFISSIONAL).map(
+                usuario ->
+                        new UsuarioProfissionalDTO(
+                                usuario.getClinica().getRazaoSocial(),
+                                usuario.getNome(),
+                                usuario.getEmail(),
+                                usuario.getSenha(),
+                                usuario.getCpf(),
+                                usuario.getDataNascimento(),
+                                usuario.getAreasAtuacao().stream().map(
+                                        areaAtuacao -> new AreaAtuacaoDTO(
+                                                areaAtuacao.getTitulo(),
+                                                areaAtuacao.getDescricao()
+                                        )).toList()
+
+                        )
+        ).toList();
+    }
 }

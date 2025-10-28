@@ -17,9 +17,6 @@ public class ModoPresencial implements ConsultaModo {
 
         if (consulta.getTipoConsulta() != TipoConsulta.PRESENCIAL)
             throw new TipoInvalidoConsultaException();
-
-        if (consulta.getEndereco() != null)
-            throw new EnderecoInvalidoException();
     }
 
     @Override

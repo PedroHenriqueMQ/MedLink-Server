@@ -19,9 +19,6 @@ public class ModoTelemedicina implements ConsultaModo {
 
         if (consulta.getTipoConsulta() != TipoConsulta.TELEMEDICINA)
             throw new TipoInvalidoConsultaException();
-
-        if (consulta.getEndereco() != null)
-            throw new EnderecoInvalidoException();
     }
 
     @Override

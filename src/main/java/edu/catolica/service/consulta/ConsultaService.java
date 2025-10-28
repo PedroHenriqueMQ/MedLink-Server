@@ -41,7 +41,6 @@ public class ConsultaService {
 
         var consulta = definirModoConsulta(dtoToEntity(dto, paciente, profissional));
         var consultaEntity = consulta.processarConsulta(StatusConsulta.SOLICITADA);
-
         validarDisponibilidade(profissional.getId(), consultaEntity);
 
         consultaRepository.save(consultaEntity);
