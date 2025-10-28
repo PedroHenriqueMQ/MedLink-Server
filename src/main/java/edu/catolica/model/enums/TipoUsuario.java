@@ -1,4 +1,4 @@
-package edu.catolica.model;
+package edu.catolica.model.enums;
 
 public enum TipoUsuario {
     ADMINISTRADOR,

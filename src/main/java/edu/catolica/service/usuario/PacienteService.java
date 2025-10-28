@@ -1,6 +1,7 @@
-package edu.catolica.service;
+package edu.catolica.service.usuario;
 
-import edu.catolica.model.TipoUsuario;
+import edu.catolica.model.enums.TipoUsuario;
+import edu.catolica.service.clinica.ClinicaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,7 @@ public class PacienteService {
     private final ClinicaService clinicaService;
     private final UsuarioRepository usuarioRepository;
 
-    public void cadastrarPaciente(UsuarioPacienteDTO usuarioPacienteDTO) {
+    public String cadastrarPaciente(UsuarioPacienteDTO usuarioPacienteDTO) {
         var clinica = clinicaService.consultarClinicaExistente(usuarioPacienteDTO.clinica());
         usuarioService.verificarEmailDuplicado(usuarioPacienteDTO.email(), clinica);
 
@@ -33,6 +34,7 @@ public class PacienteService {
             null
         );
 
-        usuarioRepository.save(usuarioModel);
+        var paciente = usuarioRepository.save(usuarioModel);
+        return paciente.getTipoUsuario().toString();
     }
 }

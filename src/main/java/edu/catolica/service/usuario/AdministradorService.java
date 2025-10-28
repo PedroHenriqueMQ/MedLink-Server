@@ -1,9 +1,10 @@
-package edu.catolica.service;
+package edu.catolica.service.usuario;
 
 import edu.catolica.dto.UsuarioProfissionalDTO;
+import edu.catolica.exception.UsuarioInexistenteException;
 import edu.catolica.model.AreaAtuacao;
-import edu.catolica.model.TipoUsuario;
-import edu.catolica.model.TurnoAtendimento;
+import edu.catolica.model.enums.TipoUsuario;
+import edu.catolica.model.enums.TurnoAtendimento;
 import edu.catolica.model.Usuario;
 import edu.catolica.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class AdministradorService {
     private final UsuarioRepository usuarioRepository;
 
     public void cadastrarProfissional(UsuarioProfissionalDTO usuarioProfissionalDTO, String token) {
-        var administrador = usuarioService.validarRequisicao(token, TipoUsuario.ADMINISTRADOR);
+        var administrador = usuarioService.verificarRequisicao(token, TipoUsuario.ADMINISTRADOR);
         var clinica = administrador.getClinica();
         usuarioService.verificarEmailDuplicado(usuarioProfissionalDTO.email(), clinica);
 
@@ -31,10 +33,10 @@ public class AdministradorService {
                 usuarioProfissionalDTO.senha(),
                 usuarioProfissionalDTO.cpf(),
                 usuarioProfissionalDTO.dataNascimento(),
-                new AreaAtuacao(
-                        usuarioProfissionalDTO.tituloAreaAtuacao(),
-                        usuarioProfissionalDTO.descricaoAreaAtuacao()
-                ),
+                usuarioProfissionalDTO.areasAtuacao()
+                        .stream().map(
+                                (areaAtuacao) -> new AreaAtuacao(areaAtuacao.titulo(), areaAtuacao.descricao())
+                        ).toList(),
                 TipoUsuario.PROFISSIONAL,
                 List.of(TurnoAtendimento.MATUTINO, TurnoAtendimento.VESPERTINO)
         );
@@ -43,25 +45,29 @@ public class AdministradorService {
     }
 
     public void atualizarProfissional(UsuarioProfissionalDTO usuarioProfissionalDTO, String token) {
-        var administrador = usuarioService.validarRequisicao(token, TipoUsuario.ADMINISTRADOR);
+        var administrador = usuarioService.verificarRequisicao(token, TipoUsuario.ADMINISTRADOR);
         var clinica = administrador.getClinica();
-        var usuario = usuarioService.verificarEmailDuplicado(usuarioProfissionalDTO.email(), clinica);
+        var usuario = usuarioRepository.findByClinicaIdAndEmail(clinica.getId(), usuarioProfissionalDTO.email())
+                .orElseThrow(() -> new UsuarioInexistenteException(usuarioProfissionalDTO.email()));
 
         usuario.setCpf(usuarioProfissionalDTO.cpf());
         usuario.setDataNascimento(usuarioProfissionalDTO.dataNascimento());
         usuario.setNome(usuarioProfissionalDTO.nome());
         usuario.setEmail(usuarioProfissionalDTO.email());
         usuario.setSenha(usuarioProfissionalDTO.senha());
-        usuario.getAreaAtuacao().get(0).setDescricao(usuarioProfissionalDTO.descricaoAreaAtuacao());
-        usuario.getAreaAtuacao().get(0).setTitulo(usuarioProfissionalDTO.tituloAreaAtuacao());
+        usuario.setAreasAtuacao(usuarioProfissionalDTO.areasAtuacao()
+                .stream().map(
+                        (areaAtuacao) -> new AreaAtuacao(areaAtuacao.titulo(), areaAtuacao.descricao())
+                ).collect(Collectors.toList()));
 
         usuarioRepository.save(usuario);
     }
 
     public void atualizarEstadoProfissional(String email, String token, boolean estadoInativo) {
-        var administrador = usuarioService.validarRequisicao(token, TipoUsuario.ADMINISTRADOR);
+        var administrador = usuarioService.verificarRequisicao(token, TipoUsuario.ADMINISTRADOR);
         var clinica = administrador.getClinica();
-        var usuario = usuarioService.verificarEmailDuplicado(email, clinica);
+        var usuario = usuarioRepository.findByClinicaIdAndEmail(clinica.getId(), email)
+                .orElseThrow(() -> new UsuarioInexistenteException(email));
 
         usuario.setInativo(estadoInativo);
 

@@ -1,6 +1,7 @@
 package edu.catolica.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.hibernate.validator.constraints.br.CPF;
 
@@ -27,11 +28,7 @@ public record UsuarioProfissionalDTO(
         String cpf,
         @NotNull
         LocalDate dataNascimento,
-        @Size(max = 20)
-        @NotBlank
-        String tituloAreaAtuacao,
-        @Size(max = 80)
-        @NotBlank
-        String descricaoAreaAtuacao
+        @NotNull
+        List<AreaAtuacaoDTO> areasAtuacao
 ) {
 }

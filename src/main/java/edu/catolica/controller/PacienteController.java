@@ -1,16 +1,10 @@
 package edu.catolica.controller;
 
-import edu.catolica.dto.UsuarioLoginDTO;
-import edu.catolica.service.UsuarioService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import edu.catolica.dto.UsuarioPacienteDTO;
-import edu.catolica.service.PacienteService;
+import edu.catolica.service.usuario.PacienteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -18,12 +12,13 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/pacientes")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public final class PacienteController {
     private final PacienteService pacienteService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public void cadastrarPaciente(@RequestBody @Valid UsuarioPacienteDTO usuarioPacienteDTO) {
-        pacienteService.cadastrarPaciente(usuarioPacienteDTO);
+    public String cadastrarPaciente(@RequestBody @Valid UsuarioPacienteDTO usuarioPacienteDTO) {
+        return pacienteService.cadastrarPaciente(usuarioPacienteDTO);
     }
 }

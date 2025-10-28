@@ -4,7 +4,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.*;
+import edu.catolica.model.enums.TipoUsuario;
+import edu.catolica.model.enums.TurnoAtendimento;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,20 +40,22 @@ public final class Usuario {
     private LocalDate dataNascimento;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "area_atuacao_id")
-    private List<AreaAtuacao> areaAtuacao = new ArrayList<>();
+    private List<AreaAtuacao> areasAtuacao = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
     private TipoUsuario tipoUsuario;
+    @Enumerated(EnumType.STRING)
     private List<TurnoAtendimento> turnosAtendimento = new ArrayList<>();
     private boolean inativo = false;
 
     public Usuario(Clinica clinica, String nome, String email, String senha, String cpf, LocalDate dataNascimento,
-                   AreaAtuacao areaAtuacao, TipoUsuario tipoUsuario, List<TurnoAtendimento> turnosAtendimento) {
+                   List<AreaAtuacao> areasAtuacao, TipoUsuario tipoUsuario, List<TurnoAtendimento> turnosAtendimento) {
         this.clinica = clinica;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.cpf = cpf;
         this.dataNascimento = dataNascimento;
-        this.areaAtuacao.add(areaAtuacao);
+        this.areasAtuacao = areasAtuacao;
         this.tipoUsuario = tipoUsuario;
         this.turnosAtendimento = turnosAtendimento;
     }
