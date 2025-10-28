@@ -1,7 +1,7 @@
 package edu.catolica.service.usuario;
 
 import edu.catolica.dto.UsuarioProfissionalDTO;
-import edu.catolica.exception.UsuarioInexistenteException;
+import edu.catolica.exception.usuario.UsuarioInexistenteException;
 import edu.catolica.model.AreaAtuacao;
 import edu.catolica.model.enums.TipoUsuario;
 import edu.catolica.model.enums.TurnoAtendimento;

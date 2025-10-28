@@ -1,4 +1,4 @@
-package edu.catolica.exception;
+package edu.catolica.exception.consulta;
 
 public class StatusInvalidoConsultaException extends IllegalArgumentException {
     public StatusInvalidoConsultaException () {

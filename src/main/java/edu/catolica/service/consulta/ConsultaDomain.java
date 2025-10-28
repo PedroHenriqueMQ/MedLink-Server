@@ -1,10 +1,8 @@
 package edu.catolica.service.consulta;
 
-import edu.catolica.exception.HorarioInvalidoConsultaException;
-import edu.catolica.exception.JustificativaAusenteException;
-import edu.catolica.exception.StatusInvalidoConsultaException;
+import edu.catolica.exception.consulta.HorarioInvalidoConsultaException;
+import edu.catolica.exception.consulta.JustificativaAusenteException;
 import edu.catolica.model.Consulta;
-import edu.catolica.model.Usuario;
 import edu.catolica.model.enums.StatusConsulta;
 import edu.catolica.service.consulta.modo.ConsultaModo;
 

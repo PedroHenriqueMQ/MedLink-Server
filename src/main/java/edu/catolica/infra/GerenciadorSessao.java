@@ -1,5 +1,7 @@
 package edu.catolica.infra;
 
+import edu.catolica.exception.usuario.SessaoInvalidaException;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -23,20 +25,17 @@ public class GerenciadorSessao {
         sessoesAtivas.put(email, LocalDateTime.now());
     }
 
-    public boolean validarSessao(String email) {
+    public void validarSessao(String email) {
         LocalDateTime horaSessao = sessoesAtivas.get(email);
 
-        if (horaSessao == null) {
-            return false;
-        }
+        if (horaSessao == null)
+            throw new SessaoInvalidaException();
 
         LocalDateTime horaAtual = LocalDateTime.now();
 
         if (Duration.between(horaSessao, horaAtual).toMinutes() > 30) {
             sessoesAtivas.remove(email, horaSessao);
-            return false;
+            throw new SessaoInvalidaException();
         }
-
-        return true;
     }
 }

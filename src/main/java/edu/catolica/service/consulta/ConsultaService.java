@@ -1,7 +1,10 @@
 package edu.catolica.service.consulta;
 
 import edu.catolica.dto.ConsultaDTO;
-import edu.catolica.exception.*;
+import edu.catolica.exception.consulta.ConsultaDuplicadaException;
+import edu.catolica.exception.consulta.ConsultaInexistenteException;
+import edu.catolica.exception.consulta.HorarioInvalidoConsultaException;
+import edu.catolica.exception.usuario.UsuarioInvalidoException;
 import edu.catolica.model.*;
 import edu.catolica.model.enums.*;
 import edu.catolica.repository.ConsultaRepository;

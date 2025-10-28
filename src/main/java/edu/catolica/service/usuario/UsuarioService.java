@@ -1,6 +1,10 @@
 package edu.catolica.service.usuario;
 
-import edu.catolica.exception.*;
+import edu.catolica.exception.clinica.UsuariosClinicasDistintasException;
+import edu.catolica.exception.usuario.AcessoNegadoException;
+import edu.catolica.exception.usuario.CredenciaisInvalidasException;
+import edu.catolica.exception.usuario.EmailDuplicadoException;
+import edu.catolica.exception.usuario.UsuarioInexistenteException;
 import edu.catolica.infra.GerenciadorSessao;
 import edu.catolica.model.Clinica;
 import edu.catolica.model.enums.TipoUsuario;
@@ -37,8 +41,7 @@ public class UsuarioService {
     }
 
     public Usuario verificarRequisicao(String email, TipoUsuario tipoUsuario) {
-        if (!gerenciadorSessao.validarSessao(email))
-            throw new AcessoNegadoException();
+        gerenciadorSessao.validarSessao(email);
 
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(CredenciaisInvalidasException::new);

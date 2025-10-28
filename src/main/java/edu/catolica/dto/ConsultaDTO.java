@@ -11,24 +11,24 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record ConsultaDTO(
-        @NotBlank
-        @Email
+        @NotBlank(message = "Consulta não aceita email de destinatário vazio")
+        @Email(message = "Consulta não aceita email de destinatário inválido")
         String emailDestinatario,
-        @NotBlank
-        @Size(max = 80)
+        @NotBlank(message = "Consulta não aceita nome da Clínica vazio")
+        @Size(max = 80, message = "Consulta com nome da Clínica só aceita até 80 caracteres")
         String clinica,
         EnderecoDTO endereco,
-        @NotNull
+        @NotNull(message = "Consulta não aceita data vazia")
         LocalDate dataConsulta,
-        @NotNull
+        @NotNull(message = "Consulta não aceita horário de início vazio")
         LocalTime horaInicio,
-        @NotNull
+        @NotNull(message = "Consulta não aceita horário de fim vazio")
         LocalTime horaFim,
-        @NotNull
+        @NotNull(message = "Consulta não aceita tipo de consulta vazio")
         TipoConsulta tipoConsulta,
-        @Size(max = 300)
+        @Size(max = 300, message = "Consulta com justificativa só aceita até 300 caracteres")
         String justificativa,
-        @NotNull
+        @NotNull(message = "Consulta não aceita status vazio")
         StatusConsulta statusConsulta
 ) {
 }

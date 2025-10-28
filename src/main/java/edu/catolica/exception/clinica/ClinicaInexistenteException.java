@@ -1,4 +1,4 @@
-package edu.catolica.exception;
+package edu.catolica.exception.clinica;
 
 
 import jakarta.persistence.EntityNotFoundException;

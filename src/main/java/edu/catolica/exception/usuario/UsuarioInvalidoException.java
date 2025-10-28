@@ -1,4 +1,4 @@
-package edu.catolica.exception;
+package edu.catolica.exception.usuario;
 
 public class UsuarioInvalidoException extends IllegalArgumentException {
     public UsuarioInvalidoException(String email) {

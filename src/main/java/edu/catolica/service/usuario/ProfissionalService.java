@@ -2,8 +2,8 @@ package edu.catolica.service.usuario;
 
 import edu.catolica.dto.AreaAtuacaoDTO;
 import edu.catolica.dto.UsuarioProfissionalDTO;
-import edu.catolica.exception.ClinicaInexistenteException;
-import edu.catolica.exception.UsuarioInexistenteException;
+import edu.catolica.exception.clinica.ClinicaInexistenteException;
+import edu.catolica.exception.usuario.UsuarioInexistenteException;
 import edu.catolica.model.Consulta;
 import edu.catolica.model.enums.StatusConsulta;
 import edu.catolica.model.enums.TipoUsuario;
