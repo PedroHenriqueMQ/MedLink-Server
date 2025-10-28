@@ -18,7 +18,7 @@ public class PacienteService {
     private final ClinicaService clinicaService;
     private final UsuarioRepository usuarioRepository;
 
-    public void cadastrarPaciente(UsuarioPacienteDTO usuarioPacienteDTO) {
+    public String cadastrarPaciente(UsuarioPacienteDTO usuarioPacienteDTO) {
         var clinica = clinicaService.consultarClinicaExistente(usuarioPacienteDTO.clinica());
         usuarioService.verificarEmailDuplicado(usuarioPacienteDTO.email(), clinica);
 
@@ -34,6 +34,7 @@ public class PacienteService {
             null
         );
 
-        usuarioRepository.save(usuarioModel);
+        var paciente = usuarioRepository.save(usuarioModel);
+        return paciente.getTipoUsuario().toString();
     }
 }

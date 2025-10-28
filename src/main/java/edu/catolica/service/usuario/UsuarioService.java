@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -17,7 +19,7 @@ public class UsuarioService {
     private final GerenciadorSessao gerenciadorSessao = GerenciadorSessao.getInstancia();
     private final UsuarioRepository usuarioRepository;
 
-    public void login(String email, String senha) {
+    public String login(String email, String senha) {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(CredenciaisInvalidasException::new);
 
@@ -25,6 +27,7 @@ public class UsuarioService {
             throw new CredenciaisInvalidasException();
 
         gerenciadorSessao.login(email);
+        return usuario.getTipoUsuario().toString();
     }
 
     public void verificarEmailDuplicado(String email, Clinica clinica) {
@@ -65,5 +68,11 @@ public class UsuarioService {
 
     public Usuario verificarUsuarioPeloEmail(String email) {
         return usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioInexistenteException(email));
+    }
+
+    public List<String> obterRazaoSocialPeloEmail(String email) {
+        var usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioInexistenteException(email));
+
+        return List.of(usuario.getClinica().getRazaoSocial());
     }
 }

@@ -1,17 +1,20 @@
 package edu.catolica.service.usuario;
 
+import edu.catolica.dto.AreaAtuacaoDTO;
+import edu.catolica.dto.UsuarioProfissionalDTO;
+import edu.catolica.exception.ClinicaInexistenteException;
 import edu.catolica.exception.UsuarioInexistenteException;
 import edu.catolica.model.Consulta;
 import edu.catolica.model.enums.StatusConsulta;
 import edu.catolica.model.enums.TipoUsuario;
 import edu.catolica.model.enums.TurnoAtendimento;
 import edu.catolica.repository.UsuarioRepository;
+import edu.catolica.service.clinica.ClinicaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -20,6 +23,7 @@ import java.util.List;
 @Service
 public class ProfissionalService {
     private final UsuarioService usuarioService;
+    private final ClinicaService clinicaService;
     private final UsuarioRepository usuarioRepository;
 
     public void atualizarTurnosAtendimento(String email, String token, List<TurnoAtendimento> turnosAtendimento) {
@@ -60,4 +64,28 @@ public class ProfissionalService {
         return true;
     }
 
+    public List<UsuarioProfissionalDTO> obterProfissionaisPorClinica(String razaoSocial, String token) {
+        var clinicaId = clinicaService.obterIdPelaRazaoSocial(razaoSocial)
+                .orElseThrow(() -> new ClinicaInexistenteException(razaoSocial));
+        var usuarios = usuarioRepository.findAllByClinicaId(clinicaId);
+
+        return usuarios.stream().filter(
+                (usuario) -> usuario.getTipoUsuario() == TipoUsuario.PROFISSIONAL).map(
+                usuario ->
+                        new UsuarioProfissionalDTO(
+                                usuario.getClinica().getRazaoSocial(),
+                                usuario.getNome(),
+                                usuario.getEmail(),
+                                usuario.getSenha(),
+                                usuario.getCpf(),
+                                usuario.getDataNascimento(),
+                                usuario.getAreasAtuacao().stream().map(
+                                        areaAtuacao -> new AreaAtuacaoDTO(
+                                                areaAtuacao.getTitulo(),
+                                                areaAtuacao.getDescricao()
+                                        )).toList()
+
+                        )
+        ).toList();
+    }
 }
