@@ -1,22 +1,13 @@
 package edu.catolica.service.consulta;
 
 import edu.catolica.dto.ConsultaDTO;
-import edu.catolica.exception.ConsultaDuplicadaException;
-import edu.catolica.exception.ConsultaInexistenteException;
-import edu.catolica.exception.HorarioInvalidoConsultaException;
-import edu.catolica.exception.UsuarioInvalidoException;
-import edu.catolica.model.Consulta;
-import edu.catolica.model.Endereco;
-import edu.catolica.model.Usuario;
-import edu.catolica.model.enums.StatusConsulta;
-import edu.catolica.model.enums.TipoUsuario;
+import edu.catolica.exception.*;
+import edu.catolica.model.*;
+import edu.catolica.model.enums.*;
 import edu.catolica.repository.ConsultaRepository;
 import edu.catolica.service.clinica.ClinicaService;
-import edu.catolica.service.consulta.modo.ModoDomiciliar;
-import edu.catolica.service.consulta.modo.ModoPresencial;
-import edu.catolica.service.consulta.modo.ModoTelemedicina;
-import edu.catolica.service.usuario.ProfissionalService;
-import edu.catolica.service.usuario.UsuarioService;
+import edu.catolica.service.consulta.modo.*;
+import edu.catolica.service.usuario.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ConsultaService {
+
     private final UsuarioService usuarioService;
     private final ClinicaService clinicaService;
     private final ProfissionalService profissionalService;
@@ -37,140 +29,136 @@ public class ConsultaService {
     private final ModoPresencial modoPresencial;
     private final ModoTelemedicina modoTelemedicina;
 
-
-    public String solicitarConsulta(String token, ConsultaDTO consultaDTO) {
+    public String solicitarConsulta(String token, ConsultaDTO dto) {
         var paciente = usuarioService.verificarRequisicao(token, TipoUsuario.PACIENTE);
-        var profissional = usuarioService.verificarUsuarioPeloEmail(consultaDTO.emailDestinatario());
+        var profissional = validarProfissional(dto.emailDestinatario());
 
-        if (profissional.getTipoUsuario() != TipoUsuario.PROFISSIONAL)
-            throw new UsuarioInvalidoException(profissional.getEmail());
         var clinica = usuarioService.verificarClinicaCoincidente(paciente.getEmail(), profissional.getEmail());
+        validarDuplicidadeConsulta(profissional, paciente, clinica, dto);
 
-        var consultaJaExiste = consultaRepository.findByProfissionalIdAndPacienteIdAndClinicaIdAndDataConsultaAndHoraInicio(
-                profissional.getId(), paciente.getId(), clinica.getId(),
-                consultaDTO.dataConsulta(), consultaDTO.horaInicio()).isPresent();
-        if (consultaJaExiste) throw new ConsultaDuplicadaException();
+        var consulta = definirModoConsulta(dtoToEntity(dto, paciente, profissional));
+        var consultaEntity = consulta.processarConsulta(StatusConsulta.SOLICITADA);
 
-        var consultaDomain = definirModoConsulta(dtoToEntity(consultaDTO, paciente, profissional));
-        var consultaEntity = consultaDomain.processarConsulta(StatusConsulta.SOLICITADA);
-        var agendamentoProfissional = buscarTodasPorDataEProfissional(
-                consultaEntity.getDataConsulta(), profissional.getId());
-
-        if (!profissionalService.analisarDisponibilidade(
-                agendamentoProfissional, consultaEntity.getHoraInicio(), consultaEntity.getHoraFim()))
-            throw new HorarioInvalidoConsultaException();
+        validarDisponibilidade(profissional.getId(), consultaEntity);
 
         consultaRepository.save(consultaEntity);
-        return consultaDomain.obterDetalhesConsulta(consultaEntity);
+        return consulta.obterDetalhesConsulta(consultaEntity);
     }
 
-    public String confirmarConsulta(String token, ConsultaDTO consultaDTO) {
+    public String confirmarConsulta(String token, ConsultaDTO dto) {
         var profissional = usuarioService.verificarRequisicao(token, TipoUsuario.PROFISSIONAL);
-        var paciente = usuarioService.verificarUsuarioPeloEmail(consultaDTO.emailDestinatario());
+        var paciente = validarPaciente(dto.emailDestinatario());
 
-        if (paciente.getTipoUsuario() != TipoUsuario.PACIENTE)
-            throw new UsuarioInvalidoException(consultaDTO.emailDestinatario());
-        var clinica = usuarioService.verificarClinicaCoincidente(profissional.getEmail(), paciente.getEmail());
-        var consulta = consultaRepository.findByProfissionalIdAndPacienteIdAndClinicaIdAndDataConsultaAndHoraInicio(
-                profissional.getId(), paciente.getId(), clinica.getId(),
-                consultaDTO.dataConsulta(), consultaDTO.horaInicio()).orElseThrow(ConsultaInexistenteException::new);
+        var consulta = buscarConsultaExistente(profissional, paciente, dto);
+        validarDisponibilidade(profissional.getId(), consulta);
 
-        var consultaDomain = definirModoConsulta(consulta);
-        consultaDomain.processarConsulta(StatusConsulta.SOLICITADA);
+        var domain = definirModoConsulta(consulta);
+        domain.processarConsulta(StatusConsulta.SOLICITADA);
+
         consulta.setStatusConsulta(StatusConsulta.CONFIRMADA);
-
         consultaRepository.save(consulta);
-        return consultaDomain.obterDetalhesConsulta(consulta);
+
+        return domain.obterDetalhesConsulta(consulta);
     }
 
-    public void cancelarConsultaMarcada(String token, ConsultaDTO consultaDTO) {
+    public void cancelarConsultaMarcada(String token, ConsultaDTO dto) {
         var profissional = usuarioService.verificarRequisicao(token, TipoUsuario.PROFISSIONAL);
-        var paciente = usuarioService.verificarUsuarioPeloEmail(consultaDTO.emailDestinatario());
+        var paciente = validarPaciente(dto.emailDestinatario());
 
-        if (paciente.getTipoUsuario() != TipoUsuario.PACIENTE)
-            throw new UsuarioInvalidoException(consultaDTO.emailDestinatario());
-        var clinica = usuarioService.verificarClinicaCoincidente(profissional.getEmail(), paciente.getEmail());
-        var consulta = consultaRepository.findByProfissionalIdAndPacienteIdAndClinicaIdAndDataConsultaAndHoraInicio(
-                profissional.getId(), paciente.getId(), clinica.getId(),
-                consultaDTO.dataConsulta(), consultaDTO.horaInicio()).orElseThrow(ConsultaInexistenteException::new);
-
-        var consultaDomain = definirModoConsulta(consulta);
-        consultaDomain.processarConsulta(StatusConsulta.CONFIRMADA);
-        consultaDomain.validarJustificativa(consultaDTO.justificativa());
-        consulta.setStatusConsulta(StatusConsulta.CANCELADA);
-        consulta.setJustificativa(consultaDTO.justificativa());
-
-        consultaRepository.save(consulta);
+        var consulta = buscarConsultaExistente(profissional, paciente, dto);
+        processarCancelamento(consulta, dto, StatusConsulta.CONFIRMADA);
     }
 
-    public void negarConsulta(String token, ConsultaDTO consultaDTO) {
+    public void negarConsulta(String token, ConsultaDTO dto) {
         var profissional = usuarioService.verificarRequisicao(token, TipoUsuario.PROFISSIONAL);
-        var paciente = usuarioService.verificarUsuarioPeloEmail(consultaDTO.emailDestinatario());
+        var paciente = validarPaciente(dto.emailDestinatario());
 
-        if (paciente.getTipoUsuario() != TipoUsuario.PACIENTE)
-            throw new UsuarioInvalidoException(consultaDTO.emailDestinatario());
-        var clinica = usuarioService.verificarClinicaCoincidente(profissional.getEmail(), paciente.getEmail());
-        var consulta = consultaRepository.findByProfissionalIdAndPacienteIdAndClinicaIdAndDataConsultaAndHoraInicio(
-                profissional.getId(), paciente.getId(), clinica.getId(),
-                consultaDTO.dataConsulta(), consultaDTO.horaInicio()).orElseThrow(ConsultaInexistenteException::new);
-
-        var consultaDomain = definirModoConsulta(consulta);
-        consultaDomain.processarConsulta(StatusConsulta.SOLICITADA);
-        consultaDomain.validarJustificativa(consultaDTO.justificativa());
-        consulta.setStatusConsulta(StatusConsulta.CANCELADA);
-        consulta.setJustificativa(consultaDTO.justificativa());
-
-        consultaRepository.save(consulta);
+        var consulta = buscarConsultaExistente(profissional, paciente, dto);
+        processarCancelamento(consulta, dto, StatusConsulta.SOLICITADA);
     }
 
-    public void cancelarSolicitacao(String token, ConsultaDTO consultaDTO) {
+    public void cancelarSolicitacao(String token, ConsultaDTO dto) {
         var paciente = usuarioService.verificarRequisicao(token, TipoUsuario.PACIENTE);
-        var profissional = usuarioService.verificarUsuarioPeloEmail(consultaDTO.emailDestinatario());
+        var profissional = validarProfissional(dto.emailDestinatario());
 
-        if (profissional.getTipoUsuario() != TipoUsuario.PROFISSIONAL)
-            throw new UsuarioInvalidoException(consultaDTO.emailDestinatario());
-        var clinica = usuarioService.verificarClinicaCoincidente(paciente.getEmail(), profissional.getEmail());
-        var consulta = consultaRepository.findByProfissionalIdAndPacienteIdAndClinicaIdAndDataConsultaAndHoraInicio(
-                profissional.getId(), paciente.getId(), clinica.getId(),
-                consultaDTO.dataConsulta(), consultaDTO.horaInicio()).orElseThrow(ConsultaInexistenteException::new);
-
-        var consultaDomain = definirModoConsulta(consulta);
-        consultaDomain.processarConsulta(StatusConsulta.SOLICITADA);
-        consultaDomain.validarJustificativa(consultaDTO.justificativa());
-        consulta.setStatusConsulta(StatusConsulta.CANCELADA);
-        consulta.setJustificativa(consultaDTO.justificativa());
-
-        consultaRepository.save(consulta);
+        var consulta = buscarConsultaExistente(profissional, paciente, dto);
+        processarCancelamento(consulta, dto, StatusConsulta.SOLICITADA);
     }
 
     @Transactional(readOnly = true)
-    public List<Consulta> buscarTodasPorDataEProfissional (LocalDate data, Long profissionalId) {
+    public List<Consulta> buscarTodasPorDataEProfissional(LocalDate data, Long profissionalId) {
         return consultaRepository.findAllByProfissionalIdAndDataConsulta(profissionalId, data);
     }
 
-    private Consulta dtoToEntity(ConsultaDTO consultaDTO, Usuario paciente, Usuario profissional) {
+    private Usuario validarProfissional(String email) {
+        var profissional = usuarioService.verificarUsuarioPeloEmail(email);
+        if (profissional.getTipoUsuario() != TipoUsuario.PROFISSIONAL)
+            throw new UsuarioInvalidoException(email);
+        return profissional;
+    }
+
+    private Usuario validarPaciente(String email) {
+        var paciente = usuarioService.verificarUsuarioPeloEmail(email);
+        if (paciente.getTipoUsuario() != TipoUsuario.PACIENTE)
+            throw new UsuarioInvalidoException(email);
+        return paciente;
+    }
+
+    private void validarDuplicidadeConsulta(Usuario profissional, Usuario paciente, Clinica clinica, ConsultaDTO dto) {
+        var existe = consultaRepository.findByProfissionalIdAndPacienteIdAndClinicaIdAndDataConsultaAndHoraInicio(
+                profissional.getId(), paciente.getId(), clinica.getId(),
+                dto.dataConsulta(), dto.horaInicio()
+        ).isPresent();
+
+        if (existe) throw new ConsultaDuplicadaException();
+    }
+
+    private Consulta buscarConsultaExistente(Usuario profissional, Usuario paciente, ConsultaDTO dto) {
+        var clinica = usuarioService.verificarClinicaCoincidente(profissional.getEmail(), paciente.getEmail());
+        return consultaRepository.findByProfissionalIdAndPacienteIdAndClinicaIdAndDataConsultaAndHoraInicio(
+                profissional.getId(), paciente.getId(), clinica.getId(),
+                dto.dataConsulta(), dto.horaInicio()
+        ).orElseThrow(ConsultaInexistenteException::new);
+    }
+
+    private void validarDisponibilidade(Long profissionalId, Consulta consulta) {
+        var agenda = buscarTodasPorDataEProfissional(consulta.getDataConsulta(), profissionalId);
+        if (!profissionalService.analisarDisponibilidade(agenda, consulta.getHoraInicio(), consulta.getHoraFim())) {
+            throw new HorarioInvalidoConsultaException();
+        }
+    }
+
+    private void processarCancelamento(Consulta consulta, ConsultaDTO dto, StatusConsulta preStatus) {
+        var domain = definirModoConsulta(consulta);
+        domain.processarConsulta(preStatus);
+        domain.validarJustificativa(dto.justificativa());
+
+        consulta.setStatusConsulta(StatusConsulta.CANCELADA);
+        consulta.setJustificativa(dto.justificativa());
+        consultaRepository.save(consulta);
+    }
+
+    private Consulta dtoToEntity(ConsultaDTO dto, Usuario paciente, Usuario profissional) {
         var endereco = new Endereco(
-                consultaDTO.endereco().numero(),
-                consultaDTO.endereco().rua(),
-                consultaDTO.endereco().bairro(),
-                consultaDTO.endereco().cidade(),
-                consultaDTO.endereco().estado()
+                dto.endereco().numero(),
+                dto.endereco().rua(),
+                dto.endereco().bairro(),
+                dto.endereco().cidade(),
+                dto.endereco().estado()
         );
 
-        var consulta = new Consulta(
+        return new Consulta(
                 paciente,
                 profissional,
-                clinicaService.consultarClinicaExistente(consultaDTO.clinica()),
+                clinicaService.consultarClinicaExistente(dto.clinica()),
                 endereco,
-                consultaDTO.dataConsulta(),
-                consultaDTO.horaInicio(),
-                consultaDTO.horaFim(),
-                consultaDTO.tipoConsulta(),
-                consultaDTO.justificativa(),
-                consultaDTO.statusConsulta()
+                dto.dataConsulta(),
+                dto.horaInicio(),
+                dto.horaFim(),
+                dto.tipoConsulta(),
+                dto.justificativa(),
+                dto.statusConsulta()
         );
-
-        return consulta;
     }
 
     private ConsultaDomain definirModoConsulta(Consulta consulta) {
