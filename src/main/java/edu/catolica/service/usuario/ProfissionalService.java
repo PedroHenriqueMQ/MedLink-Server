@@ -2,8 +2,8 @@ package edu.catolica.service.usuario;
 
 import edu.catolica.dto.AreaAtuacaoDTO;
 import edu.catolica.dto.UsuarioProfissionalDTO;
-import edu.catolica.exception.ClinicaInexistenteException;
-import edu.catolica.exception.UsuarioInexistenteException;
+import edu.catolica.exception.clinica.ClinicaInexistenteException;
+import edu.catolica.exception.usuario.UsuarioInexistenteException;
 import edu.catolica.model.Consulta;
 import edu.catolica.model.enums.StatusConsulta;
 import edu.catolica.model.enums.TipoUsuario;
@@ -67,6 +67,30 @@ public class ProfissionalService {
     public List<UsuarioProfissionalDTO> obterProfissionaisPorClinica(String razaoSocial, String token) {
         var clinicaId = clinicaService.obterIdPelaRazaoSocial(razaoSocial)
                 .orElseThrow(() -> new ClinicaInexistenteException(razaoSocial));
+        var usuarios = usuarioRepository.findAllByClinicaId(clinicaId);
+
+        return usuarios.stream().filter(
+                (usuario) -> usuario.getTipoUsuario() == TipoUsuario.PROFISSIONAL).map(
+                usuario ->
+                        new UsuarioProfissionalDTO(
+                                usuario.getClinica().getRazaoSocial(),
+                                usuario.getNome(),
+                                usuario.getEmail(),
+                                usuario.getSenha(),
+                                usuario.getCpf(),
+                                usuario.getDataNascimento(),
+                                usuario.getAreasAtuacao().stream().map(
+                                        areaAtuacao -> new AreaAtuacaoDTO(
+                                                areaAtuacao.getTitulo(),
+                                                areaAtuacao.getDescricao()
+                                        )).toList()
+
+                        )
+        ).toList();
+    }
+
+    public List<UsuarioProfissionalDTO> obterProfissionaisPelaClinicaDoUsuario(String token) {
+        var clinicaId = usuarioService.verificarUsuarioPeloEmail(token).getClinica().getId();
         var usuarios = usuarioRepository.findAllByClinicaId(clinicaId);
 
         return usuarios.stream().filter(

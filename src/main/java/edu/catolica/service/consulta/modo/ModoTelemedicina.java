@@ -1,8 +1,8 @@
 package edu.catolica.service.consulta.modo;
 
-import edu.catolica.exception.EnderecoInvalidoException;
-import edu.catolica.exception.StatusInvalidoConsultaException;
-import edu.catolica.exception.TipoInvalidoConsultaException;
+import edu.catolica.exception.usuario.EnderecoInvalidoException;
+import edu.catolica.exception.consulta.StatusInvalidoConsultaException;
+import edu.catolica.exception.consulta.TipoInvalidoConsultaException;
 import edu.catolica.model.Consulta;
 import edu.catolica.model.enums.StatusConsulta;
 import edu.catolica.model.enums.TipoConsulta;
@@ -19,9 +19,6 @@ public class ModoTelemedicina implements ConsultaModo {
 
         if (consulta.getTipoConsulta() != TipoConsulta.TELEMEDICINA)
             throw new TipoInvalidoConsultaException();
-
-        if (consulta.getEndereco() != null)
-            throw new EnderecoInvalidoException();
     }
 
     @Override

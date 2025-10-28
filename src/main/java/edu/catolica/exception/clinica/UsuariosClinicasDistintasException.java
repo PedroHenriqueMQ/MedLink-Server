@@ -1,4 +1,4 @@
-package edu.catolica.exception;
+package edu.catolica.exception.clinica;
 
 public class UsuariosClinicasDistintasException extends IllegalArgumentException {
     public UsuariosClinicasDistintasException() {

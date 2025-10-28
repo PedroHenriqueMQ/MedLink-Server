@@ -4,20 +4,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record EnderecoDTO(
-        @Size(max = 10)
-        @NotBlank
+        @Size(max = 10, message = "Número do endereço não ser maior que 10 caracteres")
         String numero,
-        @NotBlank
-        @Size(max = 80)
+        @Size(max = 80, message = "Rua do endereço não aceita mais que 80 caracteres")
         String rua,
-        @NotBlank
-        @Size(max = 80)
+        @Size(max = 80, message = "Bairro do endereço não aceita mais que 80 caracteres")
         String bairro,
-        @NotBlank
-        @Size(max = 20)
+        @Size(max = 20, message = "Cidade do endereço não aceita mais que 20 caracteres")
         String cidade,
-        @NotBlank
-        @Size(max = 20)
+        @Size(max = 20, message = "Estado do endereço não aceita mais que 20 caracteres")
         String estado
 ) {
 }

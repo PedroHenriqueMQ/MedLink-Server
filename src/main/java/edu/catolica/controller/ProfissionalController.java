@@ -31,4 +31,10 @@ public class ProfissionalController {
             @PathVariable("razao-social") String razaoSocial, @RequestHeader("token") String token) {
         return profissionalService.obterProfissionaisPorClinica(razaoSocial, token);
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    public List<UsuarioProfissionalDTO> obterProfissionaisPelaClinicaDoUsuario(@RequestHeader("token") String token) {
+        return profissionalService.obterProfissionaisPelaClinicaDoUsuario(token);
+    }
 }

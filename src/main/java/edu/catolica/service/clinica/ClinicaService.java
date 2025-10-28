@@ -1,6 +1,6 @@
 package edu.catolica.service.clinica;
 
-import edu.catolica.exception.ClinicaInexistenteException;
+import edu.catolica.exception.clinica.ClinicaInexistenteException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

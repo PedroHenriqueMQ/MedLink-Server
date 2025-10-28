@@ -11,24 +11,24 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UsuarioProfissionalDTO(
-        @Size(max = 80)
-        @NotBlank
+        @Size(max = 80, message = "Profissional não pode ter nome da Clínica com mais de 80 caracteres")
+        @NotBlank(message = "Profissional não pode ter nome da Clínica vazio")
         String clinica,
-        @Size(max = 80)
-        @NotBlank
+        @Size(max = 80, message = "Profissional não pode ter nome com mais de 80 caracteres")
+        @NotBlank(message = "Profissional não pode ter nome vazio")
         String nome,
-        @Email
-        @NotBlank
+        @Email(message = "Profissional não pode ter email inválido")
+        @NotBlank(message = "Profissional não pode ter email vazio")
         String email,
-        @Size(min = 8, max = 12)
-        @NotBlank
+        @Size(min = 8, max = 12, message = "Profissional não pode ter senha com menos de 8 caracteres ou mais de 12 caracteres")
+        @NotBlank(message = "Profissional não pode ter senha vazia")
         String senha,
-        @CPF
-        @NotBlank
+        @CPF(message = "Profissional não pode ter CPF inválido")
+        @NotBlank(message = "Profissional não pode ter CPF vazio")
         String cpf,
-        @NotNull
+        @NotNull(message = "Profissional não pode ter data de nascimento vazia")
         LocalDate dataNascimento,
-        @NotNull
+        @NotNull(message = "Profissional não pode ter especialidade vazia")
         List<AreaAtuacaoDTO> areasAtuacao
 ) {
 }
