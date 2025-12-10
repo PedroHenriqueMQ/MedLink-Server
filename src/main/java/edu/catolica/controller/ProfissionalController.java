@@ -2,8 +2,8 @@ package edu.catolica.controller;
 
 import edu.catolica.dto.response.ConsultaResponseDTO;
 import edu.catolica.dto.response.ProfissionalResponseDTO;
-import edu.catolica.service.consulta.ConsultaService;
-import edu.catolica.service.usuario.ProfissionalService;
+import edu.catolica.service.consulta.impl.ConsultaServiceImpl;
+import edu.catolica.service.usuario.impl.ProfissionalServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,37 +16,37 @@ import java.util.List;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class ProfissionalController {
-    private final ProfissionalService profissionalService;
-    private final ConsultaService consultaService;
+    private final ProfissionalServiceImpl profissionalServiceImpl;
+    private final ConsultaServiceImpl consultaServiceImpl;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/clinica/{razao-social}")
     public List<ProfissionalResponseDTO> obterProfissionaisPorClinica(
             @PathVariable("razao-social") String razaoSocial
     ) {
-        return profissionalService.obterProfissionaisPorClinica(razaoSocial);
+        return profissionalServiceImpl.obterProfissionaisPorClinica(razaoSocial);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public List<ProfissionalResponseDTO> obterProfissionaisPelaClinicaDoUsuario(@RequestHeader("token") String token) {
-        return profissionalService.obterProfissionaisPelaClinicaDoUsuario(token);
+        return profissionalServiceImpl.obterProfissionaisPelaClinicaDoUsuario(token);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/consultas")
     public List<ConsultaResponseDTO> obterConsultasPeloEmail(@RequestHeader("token") String token) {
-        return profissionalService.obterConsultasPeloEmail(token);
+        return profissionalServiceImpl.obterConsultasPeloEmail(token);
     }
 
     @PatchMapping("/consultas/{id}/confirmar")
     public ResponseEntity<ConsultaResponseDTO> aceitarConsulta(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(consultaService.confirmarConsulta(id));
+        return ResponseEntity.ok(consultaServiceImpl.confirmarConsulta(id));
     }
 
     @PatchMapping("/consultas/{id}/negar")
     public ResponseEntity<ConsultaResponseDTO> negarConsulta(
             @PathVariable("id") Long id, @RequestBody String justificativa) {
-        return ResponseEntity.ok(consultaService.negarConsulta(id, justificativa));
+        return ResponseEntity.ok(consultaServiceImpl.negarConsulta(id, justificativa));
     }
 }

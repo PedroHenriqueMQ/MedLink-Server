@@ -3,7 +3,7 @@ package edu.catolica.infra;
 import edu.catolica.exception.usuario.AcessoNegadoException;
 import edu.catolica.model.Usuario;
 import edu.catolica.model.enums.TipoUsuario;
-import edu.catolica.service.usuario.UsuarioService;
+import edu.catolica.service.usuario.impl.UsuarioServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 @RequiredArgsConstructor
 public class AutenticacaoInterceptor implements HandlerInterceptor {
-    private final UsuarioService usuarioService;
+    private final UsuarioServiceImpl usuarioServiceImpl;
     private final GerenciadorSessao gerenciadorSessao;
 
     @Override
@@ -29,7 +29,7 @@ public class AutenticacaoInterceptor implements HandlerInterceptor {
 
         if (token == null || token.trim().isEmpty()) throw new AcessoNegadoException();
 
-        Usuario usuario = usuarioService.obterUsuarioPeloEmail(token);
+        Usuario usuario = usuarioServiceImpl.obterUsuarioPeloEmail(token);
 
         if (usuario.getInativo()) throw new AcessoNegadoException();
 
