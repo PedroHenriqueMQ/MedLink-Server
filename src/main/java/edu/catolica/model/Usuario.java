@@ -59,4 +59,8 @@ public final class Usuario {
         this.tipoUsuario = tipoUsuario;
         this.turnosAtendimento = turnosAtendimento;
     }
+
+    public boolean getInativo() {
+        return this.inativo;
+    }
 }

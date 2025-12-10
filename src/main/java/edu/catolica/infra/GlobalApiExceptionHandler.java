@@ -54,10 +54,7 @@ public class GlobalApiExceptionHandler {
     }
 
     @ExceptionHandler({
-            EnderecoInvalidoException.class,
-            TipoInvalidoConsultaException.class,
             StatusInvalidoConsultaException.class,
-            HorarioInvalidoConsultaException.class,
             UsuarioInvalidoException.class,
             UsuariosClinicasDistintasException.class,
             JustificativaAusenteException.class

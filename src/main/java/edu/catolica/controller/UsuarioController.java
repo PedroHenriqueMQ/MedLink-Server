@@ -1,6 +1,6 @@
 package edu.catolica.controller;
 
-import edu.catolica.dto.UsuarioLoginDTO;
+import edu.catolica.dto.request.UsuarioLoginRequestDTO;
 import edu.catolica.model.Usuario;
 import edu.catolica.service.usuario.UsuarioService;
 import jakarta.validation.Valid;
@@ -18,13 +18,13 @@ public class UsuarioController {
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
-    public String login(@RequestBody @Valid UsuarioLoginDTO usuarioLoginDTO) {
-        return usuarioService.login(usuarioLoginDTO.email(), usuarioLoginDTO.senha());
+    public String login(@RequestBody @Valid UsuarioLoginRequestDTO usuarioLoginRequestDTO) {
+        return usuarioService.login(usuarioLoginRequestDTO.email(), usuarioLoginRequestDTO.senha());
     }
 
     @GetMapping("/{email}")
     public ResponseEntity<Usuario> verificarUsuarioPeloEmail(@PathVariable("email") String email) {
-        Usuario usuario = usuarioService.verificarUsuarioPeloEmail(email);
+        Usuario usuario = usuarioService.obterUsuarioPeloEmail(email);
         return ResponseEntity.ok(usuario);
     }
 }

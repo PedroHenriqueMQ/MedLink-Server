@@ -1,6 +1,6 @@
 package edu.catolica.controller;
 
-import edu.catolica.dto.UsuarioProfissionalDTO;
+import edu.catolica.dto.request.ProfissionalRequestDTO;
 import edu.catolica.service.usuario.AdministradorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,23 +16,15 @@ public class AdministradorController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/profissional")
-    public void cadastrarProfissional(@RequestBody @Valid UsuarioProfissionalDTO usuarioProfissionalDTO,
+    public void cadastrarProfissional(@RequestBody @Valid ProfissionalRequestDTO profissionalRequestDTO,
                                       @RequestHeader("token") String token) {
-        administradorService.cadastrarProfissional(usuarioProfissionalDTO, token);
+        administradorService.cadastrarProfissional(profissionalRequestDTO, token);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/profissional")
-    public void atualizarProfissional(@RequestBody @Valid UsuarioProfissionalDTO usuarioProfissionalDTO,
+    public void atualizarProfissional(@RequestBody @Valid ProfissionalRequestDTO profissionalRequestDTO,
                                       @RequestHeader("token") String token) {
-        administradorService.atualizarProfissional(usuarioProfissionalDTO, token);
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @PatchMapping("/profissional/{email}")
-    public void atualizarEstadoAtividadeProfissional(@PathVariable("email") String email,
-                                                     @RequestParam boolean estadoInativo,
-                                                     @RequestHeader("token") String token) {
-        administradorService.atualizarEstadoProfissional(email, token, estadoInativo);
+        administradorService.atualizarProfissional(profissionalRequestDTO, token);
     }
 }

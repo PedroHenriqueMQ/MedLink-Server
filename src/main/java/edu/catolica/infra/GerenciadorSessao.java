@@ -1,24 +1,18 @@
-package edu.catolica.infra;
+package edu.catolica.infra; // Ajuste o pacote conforme necessário
 
 import edu.catolica.exception.usuario.SessaoInvalidaException;
-
+import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class GerenciadorSessao {
-    private static GerenciadorSessao INSTANCIA;
     private final Map<String, LocalDateTime> sessoesAtivas;
 
-    private GerenciadorSessao() {
+    public GerenciadorSessao() {
         this.sessoesAtivas = new ConcurrentHashMap<>();
-    }
-
-    public static synchronized GerenciadorSessao getInstancia() {
-        if (INSTANCIA == null) INSTANCIA = new GerenciadorSessao();
-
-        return INSTANCIA;
     }
 
     public void login(String email) {
@@ -34,7 +28,7 @@ public class GerenciadorSessao {
         LocalDateTime horaAtual = LocalDateTime.now();
 
         if (Duration.between(horaSessao, horaAtual).toMinutes() > 30) {
-            sessoesAtivas.remove(email, horaSessao);
+            sessoesAtivas.remove(email);
             throw new SessaoInvalidaException();
         }
     }

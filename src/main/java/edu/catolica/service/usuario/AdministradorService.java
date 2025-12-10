@@ -1,17 +1,15 @@
 package edu.catolica.service.usuario;
 
-import edu.catolica.dto.UsuarioProfissionalDTO;
-import edu.catolica.exception.usuario.UsuarioInexistenteException;
+import edu.catolica.dto.request.ProfissionalRequestDTO;
+import edu.catolica.exception.clinica.UsuariosClinicasDistintasException;
+import edu.catolica.mapper.UsuarioMapper;
 import edu.catolica.model.AreaAtuacao;
-import edu.catolica.model.enums.TipoUsuario;
-import edu.catolica.model.enums.TurnoAtendimento;
 import edu.catolica.model.Usuario;
 import edu.catolica.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -20,56 +18,37 @@ import java.util.stream.Collectors;
 public class AdministradorService {
     private final UsuarioService usuarioService;
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioMapper usuarioMapper;
 
-    public void cadastrarProfissional(UsuarioProfissionalDTO usuarioProfissionalDTO, String token) {
-        var administrador = usuarioService.verificarRequisicao(token, TipoUsuario.ADMINISTRADOR);
+    public void cadastrarProfissional(ProfissionalRequestDTO profissionalRequestDTO, String token) {
+        var administrador = usuarioService.obterUsuarioPeloEmail(token);
         var clinica = administrador.getClinica();
-        usuarioService.verificarEmailDuplicado(usuarioProfissionalDTO.email(), clinica);
+        usuarioService.verificarEmailDuplicado(profissionalRequestDTO.email(), clinica);
 
-        Usuario usuarioModel = new Usuario(
-                clinica,
-                usuarioProfissionalDTO.nome(),
-                usuarioProfissionalDTO.email(),
-                usuarioProfissionalDTO.senha(),
-                usuarioProfissionalDTO.cpf(),
-                usuarioProfissionalDTO.dataNascimento(),
-                usuarioProfissionalDTO.areasAtuacao()
-                        .stream().map(
-                                (areaAtuacao) -> new AreaAtuacao(areaAtuacao.titulo(), areaAtuacao.descricao())
-                        ).toList(),
-                TipoUsuario.PROFISSIONAL,
-                List.of(TurnoAtendimento.MATUTINO, TurnoAtendimento.VESPERTINO)
-        );
+        if (!profissionalRequestDTO.clinica().equals(clinica.getRazaoSocial()))
+            throw new UsuariosClinicasDistintasException();
+
+        Usuario usuarioModel = usuarioMapper.toEntityProfissionalCadastro(profissionalRequestDTO, clinica);
 
         usuarioRepository.save(usuarioModel);
     }
 
-    public void atualizarProfissional(UsuarioProfissionalDTO usuarioProfissionalDTO, String token) {
-        var administrador = usuarioService.verificarRequisicao(token, TipoUsuario.ADMINISTRADOR);
-        var clinica = administrador.getClinica();
-        var usuario = usuarioRepository.findByClinicaIdAndEmail(clinica.getId(), usuarioProfissionalDTO.email())
-                .orElseThrow(() -> new UsuarioInexistenteException(usuarioProfissionalDTO.email()));
+    public void atualizarProfissional(ProfissionalRequestDTO profissionalRequestDTO, String token) {
+        var administrador = usuarioService.obterUsuarioPeloEmail(token);
+        var usuario = usuarioService.obterUsuarioPeloEmail(profissionalRequestDTO.email());
+        usuarioService.verificarClinicaCoincidente(administrador.getEmail(), profissionalRequestDTO.email());
 
-        usuario.setCpf(usuarioProfissionalDTO.cpf());
-        usuario.setDataNascimento(usuarioProfissionalDTO.dataNascimento());
-        usuario.setNome(usuarioProfissionalDTO.nome());
-        usuario.setEmail(usuarioProfissionalDTO.email());
-        usuario.setSenha(usuarioProfissionalDTO.senha());
-        usuario.setAreasAtuacao(usuarioProfissionalDTO.areasAtuacao()
+        usuario.setCpf(profissionalRequestDTO.cpf());
+        usuario.setDataNascimento(profissionalRequestDTO.dataNascimento());
+        usuario.setNome(profissionalRequestDTO.nome());
+        usuario.setEmail(profissionalRequestDTO.email());
+        usuario.setSenha(profissionalRequestDTO.senha());
+        usuario.setAreasAtuacao(profissionalRequestDTO.areasAtuacao()
                 .stream().map(
                         (areaAtuacao) -> new AreaAtuacao(areaAtuacao.titulo(), areaAtuacao.descricao())
                 ).collect(Collectors.toList()));
-
-        usuarioRepository.save(usuario);
-    }
-
-    public void atualizarEstadoProfissional(String email, String token, boolean estadoInativo) {
-        var administrador = usuarioService.verificarRequisicao(token, TipoUsuario.ADMINISTRADOR);
-        var clinica = administrador.getClinica();
-        var usuario = usuarioRepository.findByClinicaIdAndEmail(clinica.getId(), email)
-                .orElseThrow(() -> new UsuarioInexistenteException(email));
-
-        usuario.setInativo(estadoInativo);
+        usuario.setTurnosAtendimento(profissionalRequestDTO.turnosAtendimento());
+        usuario.setInativo(profissionalRequestDTO.inativo());
 
         usuarioRepository.save(usuario);
     }

@@ -1,10 +1,10 @@
-package edu.catolica.dto;
+package edu.catolica.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record UsuarioLoginDTO(
+public record UsuarioLoginRequestDTO(
     @Email(message = "Email inválido")
     @NotBlank(message = "Email não pode estar vazio")
     String email,

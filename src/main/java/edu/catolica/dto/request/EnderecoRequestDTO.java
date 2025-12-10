@@ -1,9 +1,8 @@
-package edu.catolica.dto;
+package edu.catolica.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record EnderecoDTO(
+public record EnderecoRequestDTO(
         @Size(max = 10, message = "Número do endereço não ser maior que 10 caracteres")
         String numero,
         @Size(max = 80, message = "Rua do endereço não aceita mais que 80 caracteres")

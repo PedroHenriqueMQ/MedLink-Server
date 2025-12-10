@@ -2,6 +2,6 @@ package edu.catolica.exception.consulta;
 
 public class ConsultaDuplicadaException extends IllegalArgumentException {
     public ConsultaDuplicadaException() {
-        super("Consulta já registrada no sistema.");
+        super("Já existe uma consulta com os mesmos valores de data e horário.");
     }
 }
