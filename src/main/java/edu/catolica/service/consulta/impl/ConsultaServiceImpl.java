@@ -75,6 +75,12 @@ public class ConsultaServiceImpl implements ConsultaService {
         return consultaRepository.findAllByProfissionalId(profissional.getId());
     }
 
+    @Override
+    public List<Consulta> buscarConsultasPorEmailPaciente(String token) {
+        var profissional = usuarioServiceImpl.obterUsuarioPeloEmail(token);
+        return consultaRepository.findAllByPacienteId(profissional.getId());
+    }
+
     private Usuario validarProfissional(String email) {
         var profissional = usuarioServiceImpl.obterUsuarioPeloEmail(email);
         if (profissional.getTipoUsuario() != TipoUsuario.PROFISSIONAL)

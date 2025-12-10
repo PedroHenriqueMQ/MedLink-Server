@@ -1,6 +1,7 @@
 package edu.catolica.controller;
 
 import edu.catolica.dto.request.ConsultaRequestDTO;
+import edu.catolica.dto.response.ConsultaResponseDTO;
 import edu.catolica.service.consulta.impl.ConsultaServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,8 @@ import edu.catolica.dto.request.UsuarioPacienteRequestDTO;
 import edu.catolica.service.usuario.impl.PacienteServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 
 @RestController
@@ -30,5 +33,11 @@ public final class PacienteController {
     public void solicitarConsulta(@RequestHeader("token") String token,
                                     @RequestBody @Valid ConsultaRequestDTO consultaRequestDTO) {
         consultaServiceImpl.solicitarConsulta(token, consultaRequestDTO);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/consultas")
+    public List<ConsultaResponseDTO> obterConsultasPeloEmail(@RequestHeader("token") String token) {
+        return pacienteServiceImpl.obterConsultasPeloEmail(token);
     }
 }

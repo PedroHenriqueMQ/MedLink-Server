@@ -14,4 +14,6 @@ public interface ConsultaService {
     ConsultaResponseDTO negarConsulta(Long id, String justificativa);
 
     List<Consulta> buscarConsultasPorEmailProfissional(String email);
+
+    List<Consulta> buscarConsultasPorEmailPaciente(String token);
 }
