@@ -27,5 +27,4 @@ public class ClinicaController {
     public List<String> obterRazaoSocialPeloEmail(@PathVariable("email") String email) {
         return usuarioService.obterRazaoSocialPeloEmail(email);
     }
-
 }

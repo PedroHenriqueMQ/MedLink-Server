@@ -1,4 +1,4 @@
-package edu.catolica.dto;
+package edu.catolica.dto.request;
 
 import java.time.LocalDate;
 
@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record UsuarioPacienteDTO(
+public record UsuarioPacienteRequestDTO(
         @Size(max = 80, message = "Paciente não pode ter nome da Clínica com mais de 80 caracteres")
         @NotBlank(message = "Paciente não pode ter nome da Clínica vazio")
         String clinica,

@@ -1,9 +1,9 @@
-package edu.catolica.dto;
+package edu.catolica.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record AreaAtuacaoDTO(
+public record AreaAtuacaoRequestDTO(
         @NotBlank(message = "Título de Área de Atuação não deve estar vazio")
         @Size(max = 20, message = "Título de Área de Atuação só aceita até 20 caracteres")
         String titulo,

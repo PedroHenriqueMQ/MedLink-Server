@@ -9,8 +9,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
-    List<Consulta> findAllByProfissionalIdAndDataConsulta(Long profissionalId, LocalDate dataConsulta);
+    Optional<Consulta> findByProfissionalIdAndDataConsultaAndHoraInicio(
+            Long profissionalId, LocalDate dataConsulta, LocalTime horaInicio
+    );
 
-    Optional<Consulta> findByProfissionalIdAndPacienteIdAndClinicaIdAndDataConsultaAndHoraInicio(
-            Long profissionalId, Long pacienteId, Long clinicaId, LocalDate dataConsulta, LocalTime horaInicio);
+    Optional<Consulta> findByPacienteIdAndDataConsultaAndHoraInicio(
+            Long pacienteId, LocalDate dataConsulta, LocalTime horaInicio
+    );
+
+    List<Consulta> findAllByProfissionalId(Long profissionalId);
 }
