@@ -1,61 +1,23 @@
 package edu.catolica.service.usuario;
 
 import edu.catolica.exception.clinica.UsuariosClinicasDistintasException;
-import edu.catolica.exception.usuario.*;
-import edu.catolica.infra.GerenciadorSessao;
+import edu.catolica.exception.usuario.AcessoNegadoException;
+import edu.catolica.exception.usuario.CredenciaisInvalidasException;
+import edu.catolica.exception.usuario.EmailDuplicadoException;
+import edu.catolica.exception.usuario.UsuarioInexistenteException;
 import edu.catolica.model.Clinica;
 import edu.catolica.model.Usuario;
-import edu.catolica.repository.UsuarioRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Transactional(readOnly = true)
-@RequiredArgsConstructor
-@Service
-public class UsuarioService {
-    private final GerenciadorSessao gerenciadorSessao;
-    private final UsuarioRepository usuarioRepository;
+public interface UsuarioService {
+    String login(String email, String senha);
 
-    public String login(String email, String senha) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(CredenciaisInvalidasException::new);
+    void verificarEmailDuplicado(String email, Clinica clinica);
 
-        if (!usuario.getSenha().equals(senha))
-            throw new CredenciaisInvalidasException();
+    Clinica verificarClinicaCoincidente(String emailRemetente, String emailDestinatario);
 
-        if (usuario.getInativo())
-            throw new AcessoNegadoException();
+    Usuario obterUsuarioPeloEmail(String email);
 
-        gerenciadorSessao.login(email);
-        return usuario.getTipoUsuario().toString();
-    }
-
-    public void verificarEmailDuplicado(String email, Clinica clinica) {
-        var usuario = usuarioRepository.findByClinicaIdAndEmail(clinica.getId(), email);
-
-        if (usuario.isPresent()) throw new EmailDuplicadoException(email, clinica.getRazaoSocial());
-    }
-
-    public Clinica verificarClinicaCoincidente(String emailRemetente, String emailDestinatario) {
-        Usuario remetente = obterUsuarioPeloEmail(emailRemetente);
-        Usuario destinatario = obterUsuarioPeloEmail(emailDestinatario);
-
-        if (!remetente.getClinica().getId().equals(destinatario.getClinica().getId()))
-            throw new UsuariosClinicasDistintasException();
-
-        return remetente.getClinica();
-    }
-
-    public Usuario obterUsuarioPeloEmail(String email) {
-        return usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioInexistenteException(email));
-    }
-
-    public List<String> obterRazaoSocialPeloEmail(String email) {
-        var usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioInexistenteException(email));
-
-        return List.of(usuario.getClinica().getRazaoSocial());
-    }
+    List<String> obterRazaoSocialPeloEmail(String email);
 }

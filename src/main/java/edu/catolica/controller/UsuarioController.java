@@ -2,7 +2,7 @@ package edu.catolica.controller;
 
 import edu.catolica.dto.request.UsuarioLoginRequestDTO;
 import edu.catolica.model.Usuario;
-import edu.catolica.service.usuario.UsuarioService;
+import edu.catolica.service.usuario.impl.UsuarioServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,17 +14,17 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class UsuarioController {
-    private final UsuarioService usuarioService;
+    private final UsuarioServiceImpl usuarioServiceImpl;
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     public String login(@RequestBody @Valid UsuarioLoginRequestDTO usuarioLoginRequestDTO) {
-        return usuarioService.login(usuarioLoginRequestDTO.email(), usuarioLoginRequestDTO.senha());
+        return usuarioServiceImpl.login(usuarioLoginRequestDTO.email(), usuarioLoginRequestDTO.senha());
     }
 
     @GetMapping("/{email}")
     public ResponseEntity<Usuario> verificarUsuarioPeloEmail(@PathVariable("email") String email) {
-        Usuario usuario = usuarioService.obterUsuarioPeloEmail(email);
+        Usuario usuario = usuarioServiceImpl.obterUsuarioPeloEmail(email);
         return ResponseEntity.ok(usuario);
     }
 }
